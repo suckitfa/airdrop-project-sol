@@ -1,4 +1,4 @@
-const { Keypair, PublicKey,clusterApiUrl, Connection } = require("@solana/web3.js");
+const { Keypair, PublicKey,clusterApiUrl, Connection,LAMPS_PER_SOL } = require("@solana/web3.js");
 
 const wallet = new Keypair();
 
@@ -14,10 +14,9 @@ const secretKey = wallet._keypair.secretKey;
 
 /**
  * get wallet balance
- * @param {PublicKey} publicKey
  * @return {Promise<number>}
 */
-const getWalletBalance = async (publicKey) => {
+const getWalletBalance = async () => {
   try {
     const connection = new Connection(clusterApiUrl("devnet"), "confirmed");
     const walletBalance = await connection.getBalance(publicKey);
@@ -28,8 +27,20 @@ const getWalletBalance = async (publicKey) => {
   }
 };
 
+const airDropSol = async () => {
+  try {
+    const connection = new Connection(clusterApiUrl("devnet"), "confirmed");
+    // publikey, amounts of SOL to airdrop (LAMPS_PER_SOL== 1 SOL)
+    const fromAirDropSignature = await connection.requestAirdrop(publicKey, 2 * LAMPS_PER_SOL);
+    await connection.confirmTransaction(fromAirDropSignature);
+  } catch(err) {
+    console.log('errr => ',err);
+  }
+}
+
 const main = async () => {
-  await getWalletBalance(publicKey);
+  await getWalletBalance();
+  await airDropSol();
 }
 
 main();
